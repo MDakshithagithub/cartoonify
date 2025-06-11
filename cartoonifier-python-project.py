@@ -21,17 +21,26 @@ def upload():
     ImagePath=easygui.fileopenbox()
     cartoonify(ImagePath)
 
-
 def cartoonify(ImagePath):
+    # First, check if ImagePath itself is None (user cancelled dialog)
+    if ImagePath is None:
+        print("File selection cancelled. No image to process.")
+        # Optionally, show a message in the GUI as well
+        # tk.messagebox.showinfo(title="Cancelled", message="File selection was cancelled.")
+        return
+
     # read the image
     originalmage = cv2.imread(ImagePath)
+
+    # confirm that image is chosen or readable
+    if originalmage is None:
+        print("Can not find or read the image. Choose an appropriate file.")
+        # tk.messagebox.showerror(title="Error", message="Could not read the image. Please select a valid image file.")
+        return # Changed from sys.exit() as it's too abrupt for a GUI
+
+    # Convert BGR to RGB *after* checking if originalmage is None
     originalmage = cv2.cvtColor(originalmage, cv2.COLOR_BGR2RGB)
     #print(image)  # image is stored in form of numbers
-
-    # confirm that image is chosen
-    if originalmage is None:
-        print("Can not find any image. Choose appropriate file")
-        sys.exit()
 
     ReSized1 = cv2.resize(originalmage, (960, 540))
     #plt.imshow(ReSized1, cmap='gray')
@@ -50,14 +59,14 @@ def cartoonify(ImagePath):
 
     #retrieving the edges for cartoon effect
     #by using thresholding technique
-    getEdge = cv2.adaptiveThreshold(smoothGrayScale, 255, 
-        cv2.ADAPTIVE_THRESH_MEAN_C, 
+    getEdge = cv2.adaptiveThreshold(smoothGrayScale, 255,
+        cv2.ADAPTIVE_THRESH_MEAN_C,
         cv2.THRESH_BINARY, 9, 9)
 
     ReSized4 = cv2.resize(getEdge, (960, 540))
     #plt.imshow(ReSized4, cmap='gray')
 
-    #applying bilateral filter to remove noise 
+    #applying bilateral filter to remove noise
     #and keep edge sharp as required
     colorImage = cv2.bilateralFilter(originalmage, 9, 300, 300)
     ReSized5 = cv2.resize(colorImage, (960, 540))
@@ -80,10 +89,10 @@ def cartoonify(ImagePath):
     save1=Button(top,text="Save cartoon image",command=lambda: save(ReSized6, ImagePath),padx=30,pady=5)
     save1.configure(background='#364156', foreground='white',font=('calibri',10,'bold'))
     save1.pack(side=TOP,pady=50)
-    
+
     plt.show()
-    
-    
+
+
 def save(ReSized6, ImagePath):
     #saving an image using imwrite()
     newName="cartoonified_Image"
@@ -99,6 +108,3 @@ upload.configure(background='#364156', foreground='white',font=('calibri',10,'bo
 upload.pack(side=TOP,pady=50)
 
 top.mainloop()
-
-
-
