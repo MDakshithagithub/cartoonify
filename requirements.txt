@@ -1,0 +1,8 @@
+opencv-python
+easygui
+numpy
+imageio
+matplotlib
+Pillow
+tensorflow
+tqdm
